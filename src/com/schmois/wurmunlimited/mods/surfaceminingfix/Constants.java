@@ -4,8 +4,9 @@ import java.util.Properties;
 
 public class Constants {
     public static boolean debug = false;
-    
-    public static boolean removeRockRestriction = false;
+
+    public static boolean alwaysLowerRockSlope = false;
+    public static boolean noNeedToUnconverRock = false;
 
     // Azbantium Fist Enchantment
     public static boolean addAzbantiumFistEnchantment = true;
@@ -20,7 +21,9 @@ public class Constants {
     public static boolean af_fo = false;
     public static boolean af_magranon = true;
     public static boolean af_vynora = false;
-
+    public static boolean af_libila = false;
+    public static boolean af_xiax = false;
+    
     public static boolean af_ironMaterial = false;
     public static boolean af_steelMaterial = true;
     public static boolean af_seryllMaterial = true;
@@ -28,9 +31,30 @@ public class Constants {
     public static boolean af_adamantineMaterial = true;
 
     public static boolean af_usePower = true;
-    
-    public static boolean af_allowWoA = false;
 
+    public static boolean af_allowWoA = false;
+    public static boolean af_allowBotD = false;
+
+    // Azbantium Pickaxe Item
+    public static boolean addAzbantiumPickaxeItem = false;
+
+    public static long ap_decayTime = 9072000L;
+    public static float ap_difficulty = 20.0F;
+    public static int ap_weight = 2000;
+
+    public static boolean ap_useQuality = true;
+
+    public static int ap_id;
+
+    // Seafloor Mining Rig
+    public static boolean addSeafloorMiningRigItem = false;
+
+    public static long smr_decayTime = 9072000L;
+    public static float smr_difficulty = 30.0F;
+    public static int smr_weight = 10000;
+
+    public static int smr_id;
+    
     public static boolean getBoolean(Properties properties, String propertyName, boolean defaultValue) {
         String tmp = properties.getProperty(propertyName, Boolean.toString(defaultValue));
         return tmp.equalsIgnoreCase("true") || tmp.equalsIgnoreCase("yes") || tmp.equalsIgnoreCase("1");
