@@ -108,6 +108,7 @@ public class SurfaceMiningFixMod
 		Constants.af_fo = Constants.getBoolean(properties, "af_fo", Constants.af_fo);
 		Constants.af_magranon = Constants.getBoolean(properties, "af_magranon", Constants.af_magranon);
 		Constants.af_vynora = Constants.getBoolean(properties, "af_vynora", Constants.af_vynora);
+		Constants.af_xiax = Constants.getBoolean(properties, "af_xiax", Constants.af_xiax);
 
 		Constants.af_ironMaterial = Constants.getBoolean(properties, "af_ironMaterial", Constants.af_ironMaterial);
 		Constants.af_steelMaterial = Constants.getBoolean(properties, "af_steelMaterial", Constants.af_steelMaterial);
@@ -178,8 +179,6 @@ public class SurfaceMiningFixMod
 			SurfaceMiningFixMod.logger.log(Level.INFO, "af_usePower: " + Constants.af_usePower);
 
 			SurfaceMiningFixMod.logger.log(Level.INFO, "af_allowWoA: " + Constants.af_allowWoA);
-			
-			SurfaceMiningFixMod.logger.log(Level.INFO, "af_allowBotD: " + Constants.af_allowWoA);
 
 			// Azbantium Pickaxe Item
 			SurfaceMiningFixMod.logger.log(Level.INFO, "addAzbantiumPickaxeItem: " + Constants.addAzbantiumPickaxeItem);
@@ -298,6 +297,9 @@ public class SurfaceMiningFixMod
 						if (Constants.af_libila) {
 							Deities.getDeity(Deities.DEITY_LIBILA).addSpell(azbantiumPickaxe);
 						}
+						if (Constants.af_xiax) {
+							Deities.getDeity(104).addSpell(azbantiumPickaxe);
+						}
 					}
 				}
 			}
@@ -313,7 +315,8 @@ public class SurfaceMiningFixMod
 			try {
 				/**
 				 * The condition for checking if it mined a slope or not is
-				 * repeated so we need to run the following code twice.
+				 * repeated so we need to run the following code twice, it's
+				 * really dumb.
 				 */
 				replaceMineSlopeCondition();
 				replaceMineSlopeCondition();
@@ -380,7 +383,16 @@ public class SurfaceMiningFixMod
 		new CodeReplacer(codeAttribute).replaceCode(search, replacement);
 		methodInfo.rebuildStackMap(classPool);
 	}
-	
+
+	/*
+	 * @formatter:off L766 1665 aload_2; performer 1666 invokevirtual 272;
+	 * com.wurmonline.server.creatures.Communicator getCommunicator() L767 1669
+	 * ldc_w 916; "The surrounding area needs to be rock before you mine." L766
+	 * 1672 invokevirtual 278; void sendNormalServerMessage(java.lang.String
+	 * performer) L768 1675 iconst_1; 1676 ireturn;
+	 * 
+	 * @formatter:on
+	 */
 	private void replaceSurroundingRockCondition() throws NotFoundException, BadBytecode {
 		final ClassPool classPool = HookManager.getInstance().getClassPool();
 		final CtClass ctString = classPool.get("java.lang.String");

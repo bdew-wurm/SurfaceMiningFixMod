@@ -1,9 +1,5 @@
 package com.wurmonline.server.spells;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.gotti.wurmunlimited.modsupport.actions.ModActions;
 
 import com.schmois.wurmunlimited.mods.surfaceminingfix.Constants;
@@ -16,8 +12,6 @@ import com.wurmonline.server.items.Materials;
 import com.wurmonline.server.skills.Skill;
 
 public class AzbantiumFistEnchant extends ReligiousSpell {
-
-    private static Logger logger = Logger.getLogger(AzbantiumFistEnchant.class.getName());
 
     public AzbantiumFistEnchant(int cost, int difficulty, long cooldown) {
         super("Azbantium Fist", ModActions.getNextActionId(), 20, cost, difficulty, 30, cooldown);
@@ -54,7 +48,8 @@ public class AzbantiumFistEnchant extends ReligiousSpell {
             performer.getCommunicator().sendNormalServerMessage("The spell will not work on that.");
             return false;
         }
-        if (!Constants.af_allowWoA && target.getSpellEffect((byte) 16) != null) {
+        if ((!Constants.af_allowWoA && target.getSpellEffect(BUFF_WIND_OF_AGES) != null)
+                || (!Constants.af_allowBotD && target.getSpellEffect(BUFF_BLESSINGDARK) != null)) {
             performer.getCommunicator().sendNormalServerMessage(
                     "The " + target.getName() + " is already enchanted with something that would negate the effect.");
             return false;
@@ -69,6 +64,9 @@ public class AzbantiumFistEnchant extends ReligiousSpell {
 
     @Override
     void doEffect(final Skill castSkill, double power, final Creature performer, final Item target) {
+        if (isMaxed(performer, target)) {
+            return;
+        }
         if (!isValidTarget(target)) {
             performer.getCommunicator().sendNormalServerMessage("The spell fizzles.");
             return;
@@ -102,32 +100,27 @@ public class AzbantiumFistEnchant extends ReligiousSpell {
 
     @Override
     void doNegativeEffect(final Skill castSkill, final double power, final Creature performer, final Item target) {
-        isMaxed(performer, target);
-        this.checkDestroyItem(power, performer, target);
+        if (!isMaxed(performer, target)) {
+            this.checkDestroyItem(power, performer, target);
+        }
     }
 
     private boolean isMaxed(Creature performer, Item target) {
         SpellEffect eff = target.getSpellEffect(this.enchantment);
         if (!Constants.af_usePower) {
             if (eff != null) {
-                returnFavor(performer);
+                performer.getCommunicator()
+                        .sendNormalServerMessage(this.name + " is already maxed out, don't waste your favor!");
                 return true;
             }
         } else {
-            if (eff != null && eff.getPower() == 100.0F) {
-                returnFavor(performer);
+            if (eff != null && eff.getPower() >= 100.0F) {
+                performer.getCommunicator()
+                        .sendNormalServerMessage(this.name + " is already maxed out, don't waste your favor!");
                 return true;
             }
         }
         return false;
     }
 
-    private void returnFavor(Creature performer) {
-        try {
-            performer.setFavor(performer.getFavor() + (float) this.cost);
-        } catch (IOException e) {
-            logger.log(Level.WARNING, "Programming error", e);
-        }
-        performer.getCommunicator().sendNormalServerMessage(this.name + " is already maxed out.");
-    }
 }
