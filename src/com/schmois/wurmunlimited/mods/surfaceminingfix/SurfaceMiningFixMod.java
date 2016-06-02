@@ -119,6 +119,8 @@ public class SurfaceMiningFixMod implements WurmMod, Initable, PreInitable, Conf
         Constants.af_usePower = Constants.getBoolean(properties, "af_usePower", Constants.af_usePower);
 
         Constants.af_allowWoA = Constants.getBoolean(properties, "af_allowWoA", Constants.af_allowWoA);
+        
+        Constants.af_allowBotD = Constants.getBoolean(properties, "af_allowBotD", Constants.af_allowBotD);
 
         if (Constants.debug) {
             logger.log(Level.INFO, "debug: " + Constants.debug);
