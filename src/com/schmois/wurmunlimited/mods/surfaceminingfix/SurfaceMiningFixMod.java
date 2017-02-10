@@ -313,12 +313,6 @@ public class SurfaceMiningFixMod
 		if (Constants.alwaysLowerRockSlope || Constants.addAzbantiumFistEnchantment
 				|| Constants.addSeafloorMiningRigItem) {
 			try {
-				/**
-				 * The condition for checking if it mined a slope or not is
-				 * repeated so we need to run the following code twice, it's
-				 * really dumb.
-				 */
-				replaceMineSlopeCondition();
 				replaceMineSlopeCondition();
 			} catch (NotFoundException | BadBytecode e) {
 				throw new HookException(e);
@@ -369,7 +363,7 @@ public class SurfaceMiningFixMod
 		bytecode.addInvokevirtual(ctRandom, "nextInt",
 				Descriptor.ofMethod(CtClass.intType, new CtClass[] { CtClass.intType }));
 		bytecode.add(Opcode.IFNE);
-		final byte[] search = bytecode.get();
+		byte[] search = bytecode.get();
 
 		bytecode = new Bytecode(methodInfo.getConstPool());
 		bytecode.addAload(localNames.get("performer"));
@@ -378,11 +372,31 @@ public class SurfaceMiningFixMod
 				Descriptor.ofMethod(CtClass.booleanType, new CtClass[] { ctCreature, ctItem }));
 		bytecode.addGap(2);
 		bytecode.add(Opcode.IFEQ);
-		final byte[] replacement = bytecode.get();
+		byte[] replacement = bytecode.get();
 
 		new CodeReplacer(codeAttribute).replaceCode(search, replacement);
-		methodInfo.rebuildStackMap(classPool);
-	}
+
+        bytecode = new Bytecode(methodInfo.getConstPool());
+        bytecode.addGetstatic(ctServer, "rand", Descriptor.of(ctRandom));
+        bytecode.addInvokevirtual(ctRandom, "nextFloat", "()F");
+        bytecode.addFload(localNames.get("chance"));
+        bytecode.add(Opcode.FCMPG);
+        bytecode.add(Opcode.IFGE);
+        search = bytecode.get();
+
+        bytecode = new Bytecode(methodInfo.getConstPool());
+        bytecode.addAload(localNames.get("performer"));
+        bytecode.addAload(localNames.get("source"));
+        bytecode.addInvokestatic(classPool.get(this.getClass().getName()), "willMineSlope",
+                Descriptor.ofMethod(CtClass.booleanType, new CtClass[] { ctCreature, ctItem }));
+        bytecode.addGap(4);
+        bytecode.add(Opcode.IFEQ);
+        replacement = bytecode.get();
+
+        new CodeReplacer(codeAttribute).replaceCode(search, replacement);
+
+        methodInfo.rebuildStackMap(classPool);
+    }
 
 	/*
 	 * @formatter:off L766 1665 aload_2; performer 1666 invokevirtual 272;
